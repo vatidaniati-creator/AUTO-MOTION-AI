@@ -146,7 +146,7 @@ start.addEventListener('click',async()=>{
  try{
   statusBox.textContent='🤖 Gemini AI sedang menganalisis video...\nJangan tutup halaman ini.';
 
-  const response=await fetch('/api/analyze',{
+  const response=await const response = await fetch('/api/analyze',{
    method:'POST',
    body:formData
   });
