@@ -74,9 +74,9 @@ app.post("/api/analyze", upload.single("video"), async (req, res) => {
     const { GoogleGenAI } = await import("@google/genai");
 
     const ai = new GoogleGenAI({
-      apiKey: process.env.GEMINI_API_KEY
-    });
-
+  apiKey: process.env.GEMINI_API_KEY,
+  apiVersion: "v1beta"
+});
     let videoFile = await ai.files.upload({
       file: req.file.path,
       config: {
