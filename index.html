@@ -157,7 +157,11 @@ start.addEventListener('click',async()=>{
    throw new Error(data.message||data.error||'Analisis gagal.');
   }
 
-  resultBox.textContent=data.analysis||data.message||'Analisis selesai, tetapi hasil kosong.';
+  resultBox.innerText = data.analysis || data.message || 'Analisis selesai, tetapi hasil kosong.';
+resultBox.style.whiteSpace = 'pre-wrap';
+resultBox.style.overflowWrap = 'break-word';
+resultBox.style.maxHeight = 'none';
+resultBox.style.overflow = 'visible';
   resultPanel.style.display='block';
   statusBox.textContent='✅ Analisis video selesai! Hasil AI sudah tersedia di bawah.';
 
