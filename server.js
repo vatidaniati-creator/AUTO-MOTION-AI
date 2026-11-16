@@ -88,7 +88,7 @@ app.post("/api/analyze", upload.single("video"), async (req, res) => {
 
     while (
       String(videoFile.state).toUpperCase() === "PROCESSING" &&
-      attempts < 120
+      attempts < 30
     ) {
       await sleep(5000);
 
