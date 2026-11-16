@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUTO MOTION AI</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#10131c;color:#fff;font-family:Arial,sans-serif}
+header{padding:22px 18px;background:#191e2b;border-bottom:1px solid #30384b}
+header h1{margin:0;color:#7c9cff;font-size:23px}
+header p{color:#aab2c5;font-size:13px;margin-bottom:0}
+main{padding:16px;max-width:700px;margin:auto}
+.panel{background:#1b2130;border:1px solid #30394e;border-radius:15px;padding:16px;margin-bottom:16px}
+h2{font-size:17px;margin-top:0}
+.upload{display:block;text-align:center;padding:30px 12px;border:2px dashed #6478ad;border-radius:12px;background:#202a40}
+.upload strong{display:block;font-size:17px;margin-bottom:8px}
+.upload span{font-size:12px;color:#b9c4dc}
+input[type=file]{width:100%;margin-top:18px;color:#cbd5e1}
+video{width:100%;max-height:420px;background:#050608;border-radius:12px;margin-top:14px}
+select,button{width:100%;padding:14px;border-radius:10px;border:1px solid #3d4963;background:#252e42;color:white;font-size:15px;margin-top:9px}
+button{background:#557cff;border:0;font-weight:bold}
+button:disabled{opacity:.5}
+.note{font-size:12px;color:#aab5cc;line-height:1.6}
+.status{padding:12px;border-radius:10px;background:#111827;color:#b9c8e9;font-size:13px;line-height:1.5}
+footer{text-align:center;color:#75819b;font-size:11px;padding:20px}
+</style>
+</head>
+<body>
+<header>
+<h1>⚡ AUTO MOTION AI</h1>
+<p>Editor video otomatis dengan bantuan kecerdasan buatan</p>
+</header>
+<main>
+<section class="panel">
+<h2>🎬 Upload video</h2>
+<label class="upload">
+<strong>Pilih video dari galeri</strong>
+<span>Video hewan, alam, manusia, game, perjalanan, dan lainnya</span>
+<input id="videoFile" type="file" accept="video/*">
+</label>
+<div id="videoInfo" class="note">Belum ada video dipilih.</div>
+<video id="preview" controls playsinline hidden></video>
+</section>
+
+<section class="panel">
+<h2>⚙️ Pengaturan editing</h2>
+<label class="note">Format video</label>
+<select id="ratio">
+<option value="9:16">Vertikal 9:16 - YouTube Shorts</option>
+<option value="16:9">Horizontal 16:9 - YouTube</option>
+<option value="1:1">Kotak 1:1</option>
+</select>
+<label class="note">Gaya editing</label>
+<select id="style">
+<option value="cinematic">Cinematic</option>
+<option value="dynamic">Dinamis dan cepat</option>
+<option value="documentary">Dokumenter</option>
+<option value="social">Media sosial</option>
+</select>
+<label class="note">Subtitle</label>
+<select id="captions">
+<option value="auto">Subtitle otomatis</option>
+<option value="off">Tanpa subtitle</option>
+</select>
+<label class="note">Narasi AI</label>
+<select id="voice">
+<option value="on">Gunakan AI Voice</option>
+<option value="off">Gunakan suara asli</option>
+</select>
+</section>
+
+<section class="panel">
+<h2>🤖 AI Auto Editing</h2>
+<div class="status" id="status">
+Pilih video terlebih dahulu. Setelah server AI terhubung, aplikasi akan menganalisis dan mengedit video secara otomatis.
+</div>
+<button id="start" disabled>✨ MULAI EDIT OTOMATIS</button>
+<p class="note">Koneksi AI dan mesin rendering belum diaktifkan. Tombol ini akan dihubungkan setelah backend selesai dibuat.</p>
+</section>
+<footer>AUTO MOTION AI V3 • Video Editing Studio</footer>
+</main>
+<script>
+const fileInput=document.getElementById('videoFile');
+const preview=document.getElementById('preview');
+const info=document.getElementById('videoInfo');
+const start=document.getElementById('start');
+let videoURL=null;
+
+fileInput.addEventListener('change',()=>{
+ const file=fileInput.files[0];
+ if(!file)return;
+ if(!file.type.startsWith('video/')){
+  info.textContent='File yang dipilih bukan video.';
+  return;
+ }
+ if(videoURL)URL.revokeObjectURL(videoURL);
+ videoURL=URL.createObjectURL(file);
+ preview.src=videoURL;
+ preview.hidden=false;
+ info.textContent='Video: '+file.name+' • Ukuran: '+(file.size/1024/1024).toFixed(1)+' MB';
+ start.disabled=false;
+ document.getElementById('status').textContent='Video berhasil dipilih. Menunggu integrasi server AI untuk memulai editing otomatis.';
+});
+start.addEventListener('click',()=>{
+ document.getElementById('status').textContent='Server AI belum terhubung. Tahap berikutnya adalah memasang backend untuk analisis video, AI Voice, B-roll, dan rendering.';
+});
+</script>
+</body>
+</html>
