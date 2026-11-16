@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AUTO MOTION AI</title>
+<title>AUTO MOTION AI V3</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#10131c;color:#fff;font-family:Arial,sans-serif}
@@ -23,7 +23,8 @@ select,button{width:100%;padding:14px;border-radius:10px;border:1px solid #3d496
 button{background:#557cff;border:0;font-weight:bold}
 button:disabled{opacity:.5}
 .note{font-size:12px;color:#aab5cc;line-height:1.6}
-.status{padding:12px;border-radius:10px;background:#111827;color:#b9c8e9;font-size:13px;line-height:1.5}
+.status{padding:12px;border-radius:10px;background:#111827;color:#b9c8e9;font-size:13px;line-height:1.6;white-space:pre-wrap}
+#result{display:none;white-space:pre-wrap;line-height:1.7;overflow-wrap:anywhere}
 footer{text-align:center;color:#75819b;font-size:11px;padding:20px}
 </style>
 </head>
@@ -32,6 +33,7 @@ footer{text-align:center;color:#75819b;font-size:11px;padding:20px}
 <h1>⚡ AUTO MOTION AI</h1>
 <p>Editor video otomatis dengan bantuan kecerdasan buatan</p>
 </header>
+
 <main>
 <section class="panel">
 <h2>🎬 Upload video</h2>
@@ -52,6 +54,7 @@ footer{text-align:center;color:#75819b;font-size:11px;padding:20px}
 <option value="16:9">Horizontal 16:9 - YouTube</option>
 <option value="1:1">Kotak 1:1</option>
 </select>
+
 <label class="note">Gaya editing</label>
 <select id="style">
 <option value="cinematic">Cinematic</option>
@@ -59,11 +62,13 @@ footer{text-align:center;color:#75819b;font-size:11px;padding:20px}
 <option value="documentary">Dokumenter</option>
 <option value="social">Media sosial</option>
 </select>
+
 <label class="note">Subtitle</label>
 <select id="captions">
 <option value="auto">Subtitle otomatis</option>
 <option value="off">Tanpa subtitle</option>
 </select>
+
 <label class="note">Narasi AI</label>
 <select id="voice">
 <option value="on">Gunakan AI Voice</option>
@@ -74,37 +79,94 @@ footer{text-align:center;color:#75819b;font-size:11px;padding:20px}
 <section class="panel">
 <h2>🤖 AI Auto Editing</h2>
 <div class="status" id="status">
-Pilih video terlebih dahulu. Setelah server AI terhubung, aplikasi akan menganalisis dan mengedit video secara otomatis.
+Pilih video terlebih dahulu untuk memulai analisis AI.
 </div>
 <button id="start" disabled>✨ MULAI EDIT OTOMATIS</button>
-<p class="note">Koneksi AI dan mesin rendering belum diaktifkan. Tombol ini akan dihubungkan setelah backend selesai dibuat.</p>
+<p class="note">AI akan menganalisis isi video dan membuat rancangan storyboard serta narasi.</p>
 </section>
+
+<section class="panel" id="resultPanel" style="display:none">
+<h2>📋 Hasil Analisis AI</h2>
+<div id="result" class="status"></div>
+</section>
+
 <footer>AUTO MOTION AI V3 • Video Editing Studio</footer>
 </main>
+
 <script>
 const fileInput=document.getElementById('videoFile');
 const preview=document.getElementById('preview');
 const info=document.getElementById('videoInfo');
 const start=document.getElementById('start');
+const statusBox=document.getElementById('status');
+const resultPanel=document.getElementById('resultPanel');
+const resultBox=document.getElementById('result');
+
 let videoURL=null;
 
 fileInput.addEventListener('change',()=>{
  const file=fileInput.files[0];
  if(!file)return;
+
  if(!file.type.startsWith('video/')){
   info.textContent='File yang dipilih bukan video.';
+  start.disabled=true;
   return;
  }
+
  if(videoURL)URL.revokeObjectURL(videoURL);
+
  videoURL=URL.createObjectURL(file);
  preview.src=videoURL;
  preview.hidden=false;
- info.textContent='Video: '+file.name+' • Ukuran: '+(file.size/1024/1024).toFixed(1)+' MB';
+
+ info.textContent='Video: '+file.name+
+ ' • Ukuran: '+(file.size/1024/1024).toFixed(1)+' MB';
+
  start.disabled=false;
- document.getElementById('status').textContent='Video berhasil dipilih. Menunggu integrasi server AI untuk memulai editing otomatis.';
+ statusBox.textContent='Video berhasil dipilih. Tekan MULAI EDIT OTOMATIS untuk analisis.';
+ resultPanel.style.display='none';
 });
-start.addEventListener('click',()=>{
- document.getElementById('status').textContent='Server AI belum terhubung. Tahap berikutnya adalah memasang backend untuk analisis video, AI Voice, B-roll, dan rendering.';
+
+start.addEventListener('click',async()=>{
+ const file=fileInput.files[0];
+ if(!file)return;
+
+ start.disabled=true;
+ resultPanel.style.display='none';
+ statusBox.textContent='⏳ Mengirim video ke server AI...\nMohon tunggu. Video besar mungkin membutuhkan waktu lebih lama.';
+
+ const formData=new FormData();
+ formData.append('video',file);
+ formData.append('ratio',document.getElementById('ratio').value);
+ formData.append('style',document.getElementById('style').value);
+ formData.append('captions',document.getElementById('captions').value);
+ formData.append('voice',document.getElementById('voice').value);
+
+ try{
+  statusBox.textContent='🤖 Gemini AI sedang menganalisis video...\nJangan tutup halaman ini.';
+
+  const response=await fetch('/api/analyze',{
+   method:'POST',
+   body:formData
+  });
+
+  const data=await response.json();
+
+  if(!response.ok){
+   throw new Error(data.message||data.error||'Analisis gagal.');
+  }
+
+  resultBox.textContent=data.analysis||data.message||'Analisis selesai, tetapi hasil kosong.';
+  resultPanel.style.display='block';
+  statusBox.textContent='✅ Analisis video selesai! Hasil AI sudah tersedia di bawah.';
+
+ }catch(error){
+  statusBox.textContent='❌ Terjadi kesalahan:\n'+error.message+
+  '\n\nPeriksa koneksi server dan konfigurasi Gemini API.';
+ }finally{
+  start.disabled=false;
+ }
 });
 </script>
 </body>
